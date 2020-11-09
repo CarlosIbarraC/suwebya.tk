@@ -1,5 +1,5 @@
 <?php
-$conn=mysqli_connect("localhost","admin_ceiba","121212","admin_suwebya");
+require "conexion.php";
 $email ="";
 $password ="";
 $name="";

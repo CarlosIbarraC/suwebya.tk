@@ -1,6 +1,4 @@
 
-<body>
-  <div class="app" id="app">
 
 <!-- ############ LAYOUT START-->
 
@@ -99,13 +97,13 @@
                     </a>
                   </li>
                   <li>
-                    <a href="search.html" >
-                      <span class="nav-text">Search</span>
+                    <a href="operarios.php" >
+                      <span class="nav-text">Operarios</span>
                     </a>
                   </li>
                   <li>
-                    <a href="faq.html" >
-                      <span class="nav-text">FAQ</span>
+                    <a href="calendario.php" >
+                      <span class="nav-text">Programacion Operarios</span>
                     </a>
                   </li>
                   <li>
@@ -275,7 +273,7 @@
                 <li class="nav-item dropdown">
                   <a class="nav-link" href data-toggle="dropdown">
                     <i class="fa fa-fw fa-plus text-muted"></i>
-                    <span>Maquinaria</span>
+                    <span > </span>
                   </a>
                   <div ui-include="'views/blocks/dropdown.new.html'"></div>
                 </li>

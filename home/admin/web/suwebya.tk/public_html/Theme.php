@@ -1,3 +1,4 @@
+ 
   <!-- theme switcher -->
   <div id="switcher">
     <div class="switcher box-color dark-white text-color" id="sw-theme">
