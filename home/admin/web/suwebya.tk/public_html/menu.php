@@ -103,7 +103,7 @@
                   </li>
                   <li>
                     <a href="calendario.php" >
-                      <span class="nav-text">Programacion Operarios</span>
+                      <span class="nav-text">Programacion Eventos</span>
                     </a>
                   </li>
                   <li>

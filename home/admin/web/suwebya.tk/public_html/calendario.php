@@ -42,7 +42,7 @@ $mensaje="*";
 
 </head>
 
-<body>
+<body onload="recorrer()">
     <?php 
 require 'conexion.php';
 require_once 'menu.php';
@@ -52,9 +52,21 @@ require_once 'menu.php';
         <div class="app" id="app">
             <?php require_once 'menu.php';
 
-$Ope= $conn->query("SELECT * FROM `operarios` ORDER BY `name_operario`");
+$evento= $conn->query("SELECT*FROM `Programacion_eventos`");
 $maquinas= $conn->query("SELECT*FROM `Maquinaria` ORDER BY `number_machine`");
-$programacion=$conn->query("SELECT*FROM `programacion_operarios`ORDER BY `diaSP_programacion`DESC");
+$tablaEvento=$conn->query("SELECT*FROM `programacion_eventos`ORDER BY `id_evento`DESC");
+
+
+if ($tablaEvento->num_rows){
+   
+    $Maxevento=($tablaEvento->fetch_assoc()['numero_evento']);
+    $Maxevento=$Maxevento+1;
+}else{
+    $Maxevento=1000;
+    
+}
+
+
 
             ?>
 
@@ -70,74 +82,78 @@ $programacion=$conn->query("SELECT*FROM `programacion_operarios`ORDER BY `diaSP_
                                         <h2>Formulario de Programacion de Operarios</h2>
                                         <small>Lista de Operarios en Maquinas de la planta</small>
                                     </div>
-                                    <div  class="col-6 align-self-center">
-                                    <h4 id="reloj"class="text-center text-success"></h4>
+                                    <div class="col-6 align-self-center">
+                                        <h4 id="reloj" class="text-center text-success"></h4>
                                     </div>
                                 </div>
                             </div>
                             <div class="box-divider m-0"></div>
                             <div class="box-body">
                                 <form role="form">
-                                    <div class="form-group ">
-                                        <label for="cars">Seleccionar Operario</label>
-                                        <select id="operarioP" name="operarioP" class="form-control ">
-                                            <option value="0">Operario</option>
-                                            <?php while($operario= $Ope->fetch_assoc()){ ?>
-                                            <option class="text-info" value="<?php echo $operario['name_operario']?>">
-                                                <?php echo $operario['name_operario']?></option>
-                                            <?php } ?>
-                                        </select>
+                                    <div class="form-group">
+                                        <div class="col-3 pl-0">
+
+                                            <label for="Observaciones">Numero de evento</label>
+                                            <input type="text" class="form-control text-warning" id="Nevento"
+                                                name="Nevento" value="<?php echo $Maxevento ?>">
+                                            </label>
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="maquina">Seleccionar Maquina</label>
-                                        <select id="machineP" name="machineP" class="form-control">
-                                            <option value="0">Maquina</option>
-                                            <?php while($maq= $maquinas->fetch_assoc()){ ?>
-                                            <option class="text-info" value="<?php echo $maq['number_machine']?>">
-                                                <?php echo $maq['number_machine']?></option>
-                                            <?php } ?>
-                                        </select>
+                                        <div class="col-6 pl-0">
+                                            <label for="maquina">Seleccionar Maquina</label>
+                                            <select id="machineE" name="machineE" class="form-control">
+                                                <option value="0">Maquina</option>
+                                                <?php while($maq= $maquinas->fetch_assoc()){ ?>
+                                                <option class="text-info" value="<?php echo $maq['number_machine']?>">
+                                                    <?php echo $maq['number_machine']?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="form-group row">
                                         <div class="col-6 col-sm-3">
-                                            <label for="exampleInputPassword1">Hora de Entrada</label>
-                                            <input type="time" class="form-control" id="horaEP" name="horaEP" REQUIRED>
+                                            <label for="exampleInputPassword1">Inicio de evento</label>
+                                            <input type="datetime-local" class="form-control" id="fechaEI"
+                                                name="fechaEI" REQUIRED>
                                         </div>
-                                        <div class="col-6 col-sm-3">
-                                            <label for="exampleInputPassword1">Hora de Salida</label>
-                                            <input type="time" class="form-control" id="horaSP" name="horaSP" onchange="nocturno()" REQUIRED>
-                                        </div>
+
                                         <div class="col-10 col-sm-6 my-3">
-                                            <i class="fa fa-flag text-warning"></i> <small> Si la hora de entrada es
+                                            <i class="fa fa-flag text-warning"></i>
+                                            <span class="spinner-grow text-danger"></span>
+                                            <small> Si la hora de entrada es
                                                 menor se pregunta si es un horario nocturno que empieza un dia y termina
                                                 en el siguiente.</small>
                                         </div>
                                     </div>
                                     <div class="form-group row">
                                         <div class="col-6 col-sm-3">
-                                            <label for="exampleInputPassword1">Dia Inicial </label>
-                                            <input type="date"  min = "<?php echo date("Y-m-d"); ?>  " class="form-control" id="diaEP" name="diaEP" 
-                                                placeholder="serie" REQUIRED >
-                                                
+                                            <label for="exampleInputPassword1">Final de evento</label>
+                                            <input type="datetime-local" class="form-control" id="fechaEF"
+                                                name="fechaEF" REQUIRED>
                                         </div>
-                                        <div class="col-6 col-sm-3">
-                                            <label for="exampleInputPassword1">Dia final</label>
-                                            <input type="date" class="form-control" id="diaSP" name="diaSP"
-                                                placeholder="serie" REQUIRED>
-                                        </div>
+
                                         <div class="col-10 col-sm-6 my-3">
-                                            <i class="fa fa-flag text-warning"> </i> <small> Indique el dia en que desea
-                                                comenzar la programacion, recuerde que se debe iniciar con el dia
-                                                actual.</small>
+                                            <i class="fa fa-flag text-warning"></i> <small> La fecha final de un evento
+                                                debe ser mayor a la inicial</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-3 pl-0">
+                                            <label for="Observaciones">Estado</label>
+                                            <input type="text" class="form-control" name="estadoEvento"
+                                                id="estadoEvento" value="Abierto" READONLY></>
+                                            </label>
                                         </div>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="Observaciones">Observaciones</label>
-                                        <input type="text" class="form-control" id="ObservacionesP"
-                                            name="ObservacionesP" placeholder="Observaciones del dispositivo">
+                                        <textarea class="form-control" name="ObservacionesEvento"
+                                            id="ObservacionesEvento" rows="3"></textarea>
                                         </label>
                                     </div>
+
                                     <button type="button" class="btn white m-b"
                                         onclick="agregarDatosPro()">Guardar</button>
                                 </form>
@@ -154,60 +170,81 @@ $programacion=$conn->query("SELECT*FROM `programacion_operarios`ORDER BY `diaSP_
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th>Operario</th>
+                                                <th>Numero de evento</th>
                                                 <th>Maquina</th>
-                                                <th>Entrada</th>
-                                                <th>Salida</th>
-                                                <th>Periodo</th>
-                                                <th>observaciones</th>
-                                                <th>Eliminar</th>
+                                                <th>Inicio Evento</th>
+                                                <th>Fin de Evento</th>
+                                                <th>Observaciones</th>
+                                                <th>Estado</th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach($programacion as $programa){ ?>
+                                            <?php foreach($tablaEvento as $programa){ ?>
                                             <tr>
-                                                <td> <?php echo $programa['operario_programacion'] ?> </td>
-                                                <td><?php echo $programa['maquina_programacion'] ?> </td>
-                                                <td><?php echo date("h:i a",strtotime($programa['horaEP_programacion']))?>
-                                                </td>
-                                                <td><?php echo date("h:i a",strtotime($programa['horaSP_programacion']))?>
-                                                </td>
-                                                <td><?php echo date("d-M-y",strtotime($programa['diaEP_programacion']))."/".date("d-M-y",strtotime($programa['diaSP_programacion'])) ?>
-                                                </td>
-                                                <td><?php echo $programa['observaciones_programacion'] ?> </td>
+                                                <td> <?php echo $programa['numero_evento'] ?> </td>
+                                                <td><?php echo $programa['maquina_evento'] ?> </td>
+                                                <td><?php echo $programa['fechaE_evento']?> </td>
+                                                <td><?php echo $programa['fechaS_evento']?> </td>
+                                                <td><?php echo $programa['observaciones_evento'] ?> </td>
+                                                <td><?php echo $programa['estado_evento'] ?></td>
+
                                                 <td>
-                                                    <button type="button" class="btn accent" data-toggle="modal"
-                                                        data-target="#eliminarRegistroP"
-                                                        onclick="preguntarSiNo(<?php echo $programa['id_programacion'] ?>)">
-                                                        <i class="fa fa-close"></i>
-                                                    </button></td>
+                                                    <button type="button"
+                                                        class="<?php echo $programa['estado_evento'] ?> btn primary "
+                                                        data-toggle="modal" data-target="#eliminarRegistroP"
+                                                        onclick="preguntarSiNo(<?php echo '`'. $programa['numero_evento'].','.$programa['estado_evento'].','.$programa['fechaE_evento'].','.$programa['fechaS_evento'].'`' ?>)">
+                                                        <i
+                                                            class="<?php echo $programa['estado_evento']."1" ?> fa fa-unlock"></i></button>
+                                                </td>
                                                 <div class="modal fade" id="eliminarRegistroP" tabindex="-1"
                                                     role="dialog" aria-labelledby="exampleModalLabelP"
                                                     aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content dark">
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title" id="exampleModalLabel">Eliminar
+                                                                <h5 class="modal-title" id="exampleModalLabel">Cerrar
                                                                     Registro</h5>
                                                                 <button type="button" class="close text-white"
                                                                     data-dismiss="modal" aria-label="Close">
                                                                     <span aria-hidden="true">&times;</span>
                                                                 </button>
                                                             </div>
-                                                            <div class="modal-body">
-                                                                <h5>Esta seguro de eliminar registro ?</h5>
-                                                                <div class="form-group ">
 
-                                                                    <input type="text" class="form-control"
-                                                                        id="ProgramacionEX" name="ProgramacionEX">
+                                                            <div class="modal-body">
+                                                            <div class="form-group ">
+                                                            <label for="fechaEP">Numero de Evento</label>
+                                                             <input type="text" class="form-control"
+                                                                 id="ProgramacionEX" name="ProgramacionEX" readonly>
+                                                             </div>
+                                                             <div class="form-group ">
+                                                            <label for="fechaEP">Estado Evento</label>
+                                                             <input type="text" class="form-control"
+                                                                 id="EstadoE" readonly>
+                                                             </div>
+                                                                <div class="form-group ">
+                                                                <label for="fechaEP">Entrada Evento</label>
+                                                                    <input type="text" class="form-control" id="fechaEP"
+                                                                     readonly>
                                                                 </div>
+                                                                <div class="form-group " id="nn">
+                                                                <label for="fechaSP">Ingrese Fecha Final de Evento</label>
+                                                                    <input type="datetime-local" class="form-control" id="fechaSP"
+                                                                       >
+                                                                </div>
+                                                                <div class="form-group " id="xx">
+                                                                <label for="fechaSPx"> Fecha Final de Evento</label>
+                                                                    <input type="text" class="form-control" id="fechaSPx"
+                                                                       >
+                                                                </div>
+                                                                
                                                             </div>
-                                                            <div class="modal-footer">
+                                                            <div class="modal-footer" >
                                                                 <button type="button" class="btn info"
-                                                                    data-dismiss="modal">Volver</button>
-                                                                <button type="submit" class="btn danger"
-                                                                    id="eliminarRE">Eliminar</button>
-                                                                </form>
+                                                                    data-dismiss="modal" >Volver</button>
+                                                                <button type="submit" class="btn danger" id="eliminarRE"
+                                                                    onclick="eliminarDatos() ">Cerrar</button>
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -253,69 +290,46 @@ $programacion=$conn->query("SELECT*FROM `programacion_operarios`ORDER BY `diaSP_
                         <script src="scripts/ajax.js"></script>
                         <!-- endbuild -->
                         <script>
-                        $(document).ready(fecha());
+                            function recorrer() {
 
-                         function fecha(){
-                            var meses = new Array ("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
-                             var f=new Date();
-                             var fecha=(f.getDate() + " de " + meses[f.getMonth()] + " de " + f.getFullYear()); 
-                           
-                            $('#reloj').html(fecha);
-                             
-                         };
-                        
-                        </script>
-                        <script>
-                       
-                            function diaMin() {
-                            var fecha = new Date();
-                            var anio = fecha.getFullYear();
-                            var dia = fecha.getDate();
-                            var _mes = fecha.getMonth();//viene con valores de 0 al 11
-                            _mes = _mes + 1;//ahora lo tienes de 1 al 12
-                            if (_mes < 10)//ahora le agregas un 0 para el formato date
-                            { var mes = "0" + _mes;}
-                            else
-                            { var mes = _mes.toString;}
-                            let fechaMin=anio+'-'+mes+'-'+dia;
-                            document.getElementById("diaEP").setAttribute('min',fechaMin);
-                            console.log(fechaMin);
+                                $("table tbody tr td").each(function () {
+                                    if ($(this).text().trim() == "Cerrado") {
+                                        $('.Cerrado').removeClass('primary').addClass('info');
+                                        $('.Cerrado1').removeClass('fa-unlock').addClass('fa-lock');
+
+
+                                    } else {
+                                        console.log("no es pdf");
+                                    }
+                                });
+
                             }
-                             
-                            function nocturno(){
-                                if ( $('#horaEP').val()>=$('#horaSP').val()){
-                                    confirm("Es un turno nocturno? ");
-                                }else{
-                                    return;
-                                }
-                            }
-                           
+
+
                             function agregarDatosPro() {
 
-                                operarioP = $('#operarioP').val();
-                                machineP = $('#machineP').val();
-                                horaEP = $('#horaEP').val();
-                                horaSP = $('#horaSP').val();
-                                diaEP = $('#diaEP').val();
-                                diaSP = $('#diaSP').val();
-                                observacionP = $('#ObservacionesP').val();
-                                console.log();
-                               
-                                if (machineP != 0 && operarioP != 0) {
+                                numeroEvento = $('#Nevento').val();
+                                machineE = $('#machineE').val();
+                                FechaEI = $('#fechaEI').val();
+                                FechaSI = $('#fechaEF').val();
+                                observacionesEvento = $('#ObservacionesEvento').val();
+                                estado_evento = $('#estadoEvento').val();
+                                console.log(FechaSI);
 
+                                if (machineE != 0) {
 
+                                    if (FechaEI <= FechaSI || FechaSI == 0) {
 
-                                    if (diaEP <= diaSP) {
+                                        if (FechaSI == 0) {
+                                            FechaSI = null;
+                                        }
 
-
-                                        
-                                        cadena = "operarioP=" + operarioP +
-                                            "&machineP=" + machineP +
-                                            "&horaEP=" + horaEP +
-                                            "&horaSP=" + horaSP +
-                                            "&diaEP=" + diaEP +
-                                            "&diaSP=" + diaSP +
-                                            "&observacionP=" + observacionP;
+                                        cadena = "numeroEvento=" + numeroEvento +
+                                            "&machineE=" + machineE +
+                                            "&FechaEI=" + FechaEI +
+                                            "&FechaSF=" + FechaSI +
+                                            "&observacionesEvento=" + observacionesEvento +
+                                            "&estado_evento=" + estado_evento;
 
                                         console.log(cadena);
 
@@ -345,22 +359,37 @@ $programacion=$conn->query("SELECT*FROM `programacion_operarios`ORDER BY `diaSP_
                                 } else {
                                     alert("Complete el formulario por favor");
                                 }
-                                console.log(horaSP);
+
                             }
 
                             function preguntarSiNo(id) {
-                                confirm('eliminar Datos', 'Esta seguro qu desea eliminar este registro')
+                                var Cadenas = id.split(',');
 
-                                eliminarDatos(id);
+                                console.log(Cadenas[3]);
 
+                                if (Cadenas[1] == 'Cerrado') {
+                                    $('#ProgramacionEX').val(Cadenas[0]);
+                                    $('#fechaEP').val(Cadenas[2]);
+                                    $('#EstadoE').val(Cadenas[1]);
+                                    $('#nn').hide();
+                                    $('#eliminarRE').hide();
+                                    $('xx').show();
+                                    $('#fechaSPx').val(Cadenas[3]);
+                                    retun;
+                                } else {
+                                    $('#nn').show();
+                                    $('#xx').hide();
+                                    $('#ProgramacionEX').val(Cadenas[0]);
+                                    $('#fechaEP').val(Cadenas[2]);
+                                    $('#EstadoE').val(Cadenas[1]);
+                                    $('#eliminarRE').show();
+                                }
                             }
 
-                            function eliminarDatos(id) {
-                                $('#ProgramacionEX').val(id);
-
-
+                            function eliminarDatos() {
+                                id = $('#ProgramacionEX').val();
                                 cadena = "id=" + id;
-
+                                console.log(id);
 
                                 $.ajax({
                                     type: "POST",
@@ -368,7 +397,8 @@ $programacion=$conn->query("SELECT*FROM `programacion_operarios`ORDER BY `diaSP_
                                     data: cadena,
                                     success: function (r) {
                                         if (r == 1) {
-                                            console.log('eliminado con exito');
+                                            location.reload();
+
                                         } else {
 
                                             console.log('fallo en el servidor');

@@ -309,11 +309,10 @@ require_once 'Theme.php';
 
             $('#idM').val(id);
 
-
           }
 
 
-          function eliminarDatos(id) {
+          function eliminarDatos() {
 
             id = $('#idM').val();
 
@@ -327,6 +326,7 @@ require_once 'Theme.php';
               success: function (r) {
                 if (r == 1) {
                   console.log('eliminado con exito');
+                  lacation.reload();
                 } else {
 
                   console.log('fallo en el servidor');
